@@ -43,8 +43,11 @@ model User {
 
   verificationCodes VerificationCode[]
   refreshTokens     RefreshToken[]
+  examAttempts ExamAttempt[]
   assignedCourses   CourseInstructor[]
   enrollments       Enrollment[]
+  attendances       Attendance[]
+  certificates      Certificate[]
 
   @@index([role, status])
 }
@@ -106,8 +109,12 @@ model Course {
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
 
+  exams Exam[]
   instructors CourseInstructor[]
   enrollments Enrollment[]
+  sessions TrainingSession[]
+  certificates Certificate[]
+  certificatePolicy CertificatePolicy?
 
   @@index([status, startsAt])
   @@index([category])
@@ -136,4 +143,118 @@ model Enrollment {
   @@unique([courseId, studentId])
   @@index([studentId, status])
   @@index([courseId, status])
+}
+
+enum ExamQuestionType {
+  SINGLE
+  MULTIPLE
+  TRUE_FALSE
+}
+
+model Exam {
+  id String @id @default(uuid())
+  courseId String
+  course Course @relation(fields: [courseId], references: [id], onDelete: Restrict)
+  title String
+  opensAt DateTime
+  closesAt DateTime
+  durationMinutes Int
+  passingScore Float @default(0)
+  questions ExamQuestion[]
+  attempts ExamAttempt[]
+  @@index([courseId])
+}
+model ExamQuestion {
+  id String @id @default(uuid())
+  examId String
+  exam Exam @relation(fields: [examId], references: [id], onDelete: Cascade)
+  text String
+  type ExamQuestionType
+  points Float
+  options ExamOption[]
+}
+model ExamOption {
+  id String @id @default(uuid())
+  questionId String
+  question ExamQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  text String
+  isCorrect Boolean
+}
+model ExamAttempt {
+  id String @id @default(uuid())
+  examId String
+  exam Exam @relation(fields: [examId], references: [id], onDelete: Restrict)
+  studentId String
+  student User @relation(fields: [studentId], references: [id], onDelete: Restrict)
+  startedAt DateTime @default(now())
+  deadline DateTime
+  submittedAt DateTime?
+  answers Json?
+  score Float?
+  maxScore Float
+  passed Boolean?
+  @@unique([examId, studentId])
+  @@index([studentId])
+}
+
+model TrainingSession {
+  id String @id @default(uuid())
+  courseId String
+  title String
+  startsAt DateTime
+  createdAt DateTime @default(now())
+  qrHash String? @unique
+  qrExpiresAt DateTime?
+  course Course @relation(fields: [courseId], references: [id], onDelete: Restrict)
+  attendances Attendance[]
+  @@index([courseId])
+}
+
+model Attendance {
+  id String @id @default(uuid())
+  sessionId String
+  studentId String
+  registeredAt DateTime @default(now())
+  session TrainingSession @relation(fields: [sessionId], references: [id], onDelete: Restrict)
+  student User @relation(fields: [studentId], references: [id], onDelete: Restrict)
+  @@unique([sessionId, studentId])
+  @@index([studentId])
+}
+
+enum CertificateStatus {
+  VALID
+  REVOKED
+}
+
+model CertificateTemplate {
+  id String @id @default(uuid())
+  name String
+  imageData String @db.Text
+  fields Json
+  createdAt DateTime @default(now())
+  certificates Certificate[]
+}
+
+model CertificatePolicy {
+  courseId String @id
+  course Course @relation(fields: [courseId], references: [id], onDelete: Restrict)
+  requireExam Boolean @default(false)
+  minimumAttendance Float @default(0)
+  templateId String
+}
+
+model Certificate {
+  id String @id @default(uuid())
+  code String @unique
+  courseId String
+  studentId String
+  templateId String
+  course Course @relation(fields: [courseId], references: [id], onDelete: Restrict)
+  student User @relation(fields: [studentId], references: [id], onDelete: Restrict)
+  template CertificateTemplate @relation(fields: [templateId], references: [id], onDelete: Restrict)
+  status CertificateStatus @default(VALID)
+  issuedAt DateTime @default(now())
+  pdf Bytes
+  @@unique([courseId, studentId])
+  @@index([studentId])
 }

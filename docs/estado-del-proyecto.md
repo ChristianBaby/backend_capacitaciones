@@ -4,13 +4,13 @@
 **Última actualización:** 2026-11-19 · **Responsable:** 1 desarrollador (sin equipo Scrum)
 
 ## Resumen
-Autenticación y roles desplegados en `https://gestion.universoftsystems.com`. El sprint 2 (cursos e inscripciones, RF-12 a RF-17) está implementado y validado localmente en la rama `sprint-2-cursos-inscripcion` de ambos repositorios; todavía no se ha desplegado. Evaluaciones, asistencia, certificados y dashboard funcional quedan para los siguientes sprints.
+Autenticación y roles desplegados en `https://gestion.universoftsystems.com`. Los sprints 2, 3 y 4 están implementados localmente y comprobados con pruebas automatizadas. El sprint 2 se publicó en su rama remota; los sprints 3 y 4 aún no se han desplegado.
 
 ## Repositorios
 | Repo | Contenido | Rama |
 |---|---|---|
-| `backend_capacitaciones` | API NestJS + Prisma + PostgreSQL | `sprint-2-cursos-inscripcion` |
-| `frontend_capacitaciones` | SPA React + TypeScript + Vite | `sprint-2-cursos-inscripcion` |
+| `backend_capacitaciones` | API NestJS + Prisma + PostgreSQL | `sprint-3-evaluaciones-asistencia` (cambios locales sprints 3 y 4) |
+| `frontend_capacitaciones` | SPA React + TypeScript + Vite | `sprint-3-evaluaciones-asistencia` (cambios locales sprints 3 y 4) |
 | `app_capacitaciones` (futuro) | App móvil Flutter, Fase 2 | — |
 
 Ambos repos llevan la misma copia de `docs/requerimientos-funcionales.*`.
@@ -22,18 +22,18 @@ Ambos repos llevan la misma copia de `docs/requerimientos-funcionales.*`.
 | 1. Perfil de usuario y sedes (RF-10, RF-11) | ⏳ pendiente |
 | 2. Cursos e inscripción (RF-12 a RF-17) | ✅ Implementado y probado localmente; pendiente de despliegue |
 | 2. Materiales y competencias (RF-18, RF-19) | ⏳ Opcionales pendientes |
-| 3. Asistencia por QR web (RF-20 a RF-24) | ⏳ Sprint 3 |
-| 4. Evaluaciones automatizadas (RF-26 a RF-34) | ⏳ Sprint 3 |
-| 5. Certificados con QR (RF-35 a RF-40) | ⏳ Sprint 4 |
-| 6. Dashboard del admin (RF-42 a RF-44) | ⏳ Sprint 4 (solo esqueleto de tarjetas hoy) |
-| 7. Correos (RF-46) | 🟡 Autenticación en producción; confirmación de inscripción implementada en sprint 2 |
+| 3. Asistencia por QR web (RF-20 a RF-23) | ✅ Implementado y probado localmente; RF-24 opcional pendiente |
+| 4. Evaluaciones automatizadas (RF-26 a RF-31, RF-33 y RF-34) | ✅ Implementado y probado localmente; RF-32 parcial: nota mínima configurable, un intento fijo |
+| 5. Certificados con QR (RF-35 a RF-39) | ✅ Implementado y probado localmente; RF-40 parcial: revocación disponible, reemisión pendiente |
+| 6. Dashboard del admin (RF-42) | ✅ Indicadores implementados localmente; RF-43 y RF-44 opcionales pendientes |
+| 7. Correos (RF-46) | 🟡 Autenticación en producción; inscripción y certificado implementados localmente; aviso de evaluación pendiente |
 | 8. App móvil, geolocalización, tiempo real (RF-25, 48-50) | 🔜 Fase 2 |
 
 ## Hoja de ruta
 1. **Sprint 1 — Fundaciones y autenticación** ✅ (`docs/sprints/sprint-1-autenticacion.md`)
 2. **Sprint 2 — Cursos e inscripción** ✅ implementación y pruebas; pendiente de despliegue (`docs/sprints/sprint-2-cursos-inscripcion.md`)
-3. **Sprint 3 — Evaluaciones y asistencia QR**
-4. **Sprint 4 — Certificados y dashboard**
+3. **Sprint 3 — Evaluaciones y asistencia QR** ✅ implementación y pruebas locales (`docs/sprints/sprint-3-evaluaciones-asistencia.md`)
+4. **Sprint 4 — Certificados y dashboard** ✅ implementación y pruebas locales (`docs/sprints/sprint-4-certificados-dashboard.md`)
 
 ## Decisiones técnicas
 - NestJS + Prisma + PostgreSQL; React + Vite + TypeScript + Tailwind.
@@ -61,8 +61,15 @@ Ambos repos llevan la misma copia de `docs/requerimientos-funcionales.*`.
 
 El correo se simuló en la prueba de integración; se comprobó que un fallo de envío conserva la inscripción. Falta comprobar el envío real con Brevo en el entorno de despliegue. No se completó la revisión visual en navegador porque el host de acceso del navegador no estaba disponible; las interacciones se validaron con Testing Library.
 
+## Verificación de sprints 3 y 4
+
+- Las migraciones se aplicaron en PostgreSQL aislado y la comparación con el esquema Prisma no mostró diferencias.
+- El smoke HTTP del sprint 3 comprobó permisos, asistencia con códigos vigentes y duplicados concurrentes, evaluaciones, reanudación y rechazo de entregas tardías.
+- El smoke HTTP del sprint 4 comprobó políticas de asistencia y evaluación, emisión automática idempotente, PDF, verificación, permisos y dashboard; el correo se simuló.
+- Están pendientes la prueba de cámara en teléfono, la revisión visual del PDF con plantilla real y el envío real por Brevo. Ninguno de estos sprints está desplegado.
+
 ## Pendientes y deuda conocida
-- Desplegar el sprint 2: aplicar la migración `20261119010000_courses_enrollments` y publicar backend y frontend compatibles. Ejecutar una comprobación visual y de correo en ese entorno.
+- Publicar los sprints 2 a 4 y aplicar sus migraciones en orden. Verificar cámara, PDF y correo real en el entorno de despliegue.
 - Sin ESLint/Prettier en el backend.
 - Falta editar el propio perfil (RF-10) y editar usuarios desde el admin (RF-09 parcial).
 - El correo de contacto de `/privacidad` y `/terminos` es un marcador y debe definirse.

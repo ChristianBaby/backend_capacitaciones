@@ -1,0 +1,11 @@
+CREATE TYPE "ExamQuestionType" AS ENUM ('SINGLE', 'MULTIPLE', 'TRUE_FALSE');
+CREATE TABLE "Exam" ("id" TEXT NOT NULL PRIMARY KEY,"courseId" TEXT NOT NULL,"title" TEXT NOT NULL,"opensAt" TIMESTAMP(3) NOT NULL,"closesAt" TIMESTAMP(3) NOT NULL,"durationMinutes" INTEGER NOT NULL,"passingScore" DOUBLE PRECISION NOT NULL DEFAULT 0);
+CREATE INDEX "Exam_courseId_idx" ON "Exam"("courseId");
+CREATE TABLE "ExamQuestion" ("id" TEXT NOT NULL PRIMARY KEY,"examId" TEXT NOT NULL,"text" TEXT NOT NULL,"type" "ExamQuestionType" NOT NULL,"points" DOUBLE PRECISION NOT NULL,CONSTRAINT "ExamQuestion_examId_fkey" FOREIGN KEY ("examId") REFERENCES "Exam"("id") ON DELETE CASCADE ON UPDATE CASCADE);
+CREATE TABLE "ExamOption" ("id" TEXT NOT NULL PRIMARY KEY,"questionId" TEXT NOT NULL,"text" TEXT NOT NULL,"isCorrect" BOOLEAN NOT NULL,CONSTRAINT "ExamOption_questionId_fkey" FOREIGN KEY ("questionId") REFERENCES "ExamQuestion"("id") ON DELETE CASCADE ON UPDATE CASCADE);
+CREATE TABLE "ExamAttempt" ("id" TEXT NOT NULL PRIMARY KEY,"examId" TEXT NOT NULL,"studentId" TEXT NOT NULL,"startedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,"deadline" TIMESTAMP(3) NOT NULL,"submittedAt" TIMESTAMP(3),"answers" JSONB,"score" DOUBLE PRECISION,"maxScore" DOUBLE PRECISION NOT NULL,"passed" BOOLEAN,CONSTRAINT "ExamAttempt_examId_fkey" FOREIGN KEY ("examId") REFERENCES "Exam"("id") ON DELETE RESTRICT ON UPDATE CASCADE);
+CREATE UNIQUE INDEX "ExamAttempt_examId_studentId_key" ON "ExamAttempt"("examId","studentId");
+CREATE INDEX "ExamAttempt_studentId_idx" ON "ExamAttempt"("studentId");
+
+ALTER TABLE "Exam" ADD CONSTRAINT "Exam_courseId_fkey" FOREIGN KEY ("courseId") REFERENCES "Course"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "ExamAttempt" ADD CONSTRAINT "ExamAttempt_studentId_fkey" FOREIGN KEY ("studentId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

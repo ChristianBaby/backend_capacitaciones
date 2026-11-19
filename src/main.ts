@@ -4,6 +4,7 @@ import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
+import { json, urlencoded } from 'express';
 import { AppModule } from './app.module';
 
 function firstMessage(errors: ValidationError[]): string {
@@ -23,6 +24,8 @@ async function bootstrap() {
   app.set('trust proxy', 1); // detras de Traefik
   app.setGlobalPrefix('api');
   app.use(helmet());
+  app.use(json({ limit: '4mb' }));
+  app.use(urlencoded({ extended: true, limit: '4mb' }));
   app.use(cookieParser());
   app.enableCors({
     origin: process.env.FRONTEND_URL ?? 'http://localhost:5173',

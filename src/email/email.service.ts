@@ -31,6 +31,7 @@ export class EmailService {
         subject: email.subject,
         htmlContent: email.html,
         textContent: email.text,
+        ...(email.attachments?.length ? { attachment: email.attachments } : {}),
       }),
     });
 

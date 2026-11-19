@@ -28,6 +28,7 @@ export interface RenderedEmail {
   subject: string;
   html: string;
   text: string;
+  attachments?: { name: string; content: string }[];
 }
 
 export function enrollmentTemplate(name: string, title: string, venue: string, startsAt: Date): RenderedEmail {
