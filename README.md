@@ -1,6 +1,6 @@
 # backend_capacitaciones
 
-API (NestJS + Prisma 7 + PostgreSQL) del sistema de gestion de capacitaciones. Sprint 1: autenticacion, roles y gestion de instructores. Contrato en [docs/api-auth.md](docs/api-auth.md).
+API (NestJS + Prisma 7 + PostgreSQL) del sistema de gestion de capacitaciones. Incluye autenticacion, roles, gestion de instructores, cursos e inscripciones. Contratos: [autenticacion](docs/api-auth.md) y [cursos e inscripciones](docs/api-courses.md).
 
 ## Desarrollo local
 
@@ -18,6 +18,7 @@ Sin `BREVO_API_KEY`, los correos y codigos se imprimen en la consola.
 
 - `npm run build` genera el cliente Prisma y compila.
 - `npm test` ejecuta las pruebas (Prisma simulado en memoria; no requieren base de datos).
+- `npm run test:integration` compila y verifica el flujo de cursos por HTTP con PostgreSQL real, incluyendo cupos concurrentes. Requiere migraciones aplicadas y `DATABASE_URL` de una base local aislada cuyo nombre incluya `sprint2` y `smoke` o `test`. El transporte de correo se simula y los datos creados por la prueba se eliminan al terminar.
 - `npm run db:deploy` aplica migraciones; `npm run db:seed` ejecuta el seed.
 
 ## Docker

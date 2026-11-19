@@ -30,6 +30,18 @@ export interface RenderedEmail {
   text: string;
 }
 
+export function enrollmentTemplate(name: string, title: string, venue: string, startsAt: Date): RenderedEmail {
+  const date = new Intl.DateTimeFormat('es-PE', {
+    dateStyle: 'long', timeStyle: 'short', timeZone: 'America/Lima',
+  }).format(startsAt);
+  return {
+    subject: `Inscripción confirmada: ${title}`,
+    text: `Hola ${name}, tu inscripción a ${title} está confirmada. Inicio: ${date} (hora de Perú). Sede: ${venue}. Revisa Mis cursos en tu cuenta.`,
+    html: layout('Inscripción confirmada',
+      `<p>Hola <strong>${escapeHtml(name)}</strong>,</p><p>Tu inscripción a <strong>${escapeHtml(title)}</strong> está confirmada.</p><p>Inicio: ${escapeHtml(date)} (hora de Perú).<br>Sede: ${escapeHtml(venue)}</p><p>Revisa Mis cursos en tu cuenta.</p>`),
+  };
+}
+
 export function verifyEmailTemplate(name: string, code: string, minutes: number): RenderedEmail {
   return {
     subject: 'Verifica tu correo',

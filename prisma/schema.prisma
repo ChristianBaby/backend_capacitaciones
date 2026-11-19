@@ -43,6 +43,8 @@ model User {
 
   verificationCodes VerificationCode[]
   refreshTokens     RefreshToken[]
+  assignedCourses   CourseInstructor[]
+  enrollments       Enrollment[]
 
   @@index([role, status])
 }
@@ -71,4 +73,67 @@ model RefreshToken {
   createdAt DateTime  @default(now())
 
   @@index([userId])
+}
+
+enum CourseType {
+  COURSE
+  WORKSHOP
+  CONFERENCE
+}
+
+enum CourseStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum EnrollmentStatus {
+  ENROLLED
+  CANCELLED
+}
+
+model Course {
+  id          String       @id @default(uuid())
+  title       String
+  description String
+  type        CourseType   @default(COURSE)
+  category    String
+  venue       String
+  startsAt    DateTime
+  endsAt      DateTime
+  capacity    Int
+  status      CourseStatus @default(DRAFT)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  instructors CourseInstructor[]
+  enrollments Enrollment[]
+
+  @@index([status, startsAt])
+  @@index([category])
+}
+
+model CourseInstructor {
+  courseId     String
+  instructorId String
+  course       Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  instructor   User   @relation(fields: [instructorId], references: [id], onDelete: Restrict)
+
+  @@id([courseId, instructorId])
+  @@index([instructorId])
+}
+
+model Enrollment {
+  id          String           @id @default(uuid())
+  courseId    String
+  studentId   String
+  status      EnrollmentStatus @default(ENROLLED)
+  enrolledAt  DateTime         @default(now())
+  cancelledAt DateTime?
+  course      Course           @relation(fields: [courseId], references: [id], onDelete: Restrict)
+  student     User             @relation(fields: [studentId], references: [id], onDelete: Restrict)
+
+  @@unique([courseId, studentId])
+  @@index([studentId, status])
+  @@index([courseId, status])
 }

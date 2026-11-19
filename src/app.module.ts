@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { AdminModule } from './admin/admin.module';
 import { AuthModule } from './auth/auth.module';
+import { CoursesModule } from './courses/courses.module';
 import { EmailModule } from './email/email.module';
 import { HealthController } from './health/health.controller';
 import { PrismaModule } from './prisma/prisma.module';
@@ -13,6 +14,7 @@ import { PrismaModule } from './prisma/prisma.module';
     EmailModule,
     AuthModule,
     AdminModule,
+    CoursesModule,
   ],
   controllers: [HealthController],
 })

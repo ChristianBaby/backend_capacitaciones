@@ -9,7 +9,7 @@ export class EmailService {
    * Envia un correo transaccional via Brevo. Sin BREVO_API_KEY (dev local) lo imprime
    * en consola; en produccion nunca se registra el contenido (contiene codigos).
    */
-  async send(to: string, name: string, email: RenderedEmail): Promise<void> {
+  async send(to: string, name: string, email: RenderedEmail): Promise<boolean> {
     const apiKey = process.env.BREVO_API_KEY;
     const isProd = process.env.NODE_ENV === 'production';
 
@@ -19,7 +19,7 @@ export class EmailService {
       } else {
         this.logger.log(`[DEV EMAIL] to=${to} subject="${email.subject}"\n${email.text}`);
       }
-      return;
+      return false;
     }
 
     const res = await fetch('https://api.brevo.com/v3/smtp/email', {
@@ -37,5 +37,6 @@ export class EmailService {
     if (!res.ok) {
       throw new Error(`Brevo respondio ${res.status}`);
     }
+    return true;
   }
 }
