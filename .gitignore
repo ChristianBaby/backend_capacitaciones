@@ -6,3 +6,6 @@ dist
 src/generated
 coverage
 *.log
+
+# Credenciales de Google (nunca subir)
+client_secret*.json
