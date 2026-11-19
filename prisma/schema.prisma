@@ -1,0 +1,74 @@
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  ADMIN
+  INSTRUCTOR
+  STUDENT
+}
+
+enum UserStatus {
+  ACTIVE
+  PENDING
+  DISABLED
+}
+
+enum CodePurpose {
+  EMAIL_VERIFY
+  INSTRUCTOR_INVITE
+  PASSWORD_RESET
+}
+
+model User {
+  id                 String     @id @default(uuid())
+  email              String     @unique
+  name               String
+  passwordHash       String?
+  role               UserRole   @default(STUDENT)
+  status             UserStatus @default(PENDING)
+  googleId           String?    @unique
+  emailVerified      Boolean    @default(false)
+  mustChangePassword Boolean    @default(false)
+  avatarUrl          String?
+  phone              String?
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
+
+  verificationCodes VerificationCode[]
+  refreshTokens     RefreshToken[]
+
+  @@index([role, status])
+}
+
+model VerificationCode {
+  id        String      @id @default(uuid())
+  userId    String
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  codeHash  String
+  purpose   CodePurpose
+  expiresAt DateTime
+  usedAt    DateTime?
+  attempts  Int         @default(0)
+  createdAt DateTime    @default(now())
+
+  @@index([userId, purpose])
+}
+
+model RefreshToken {
+  id        String    @id @default(uuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+}
